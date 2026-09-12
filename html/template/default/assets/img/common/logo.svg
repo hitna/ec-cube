@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218 44" width="218" height="44" role="img" aria-label="EC-CUBE SHOP">
+  <title>EC-CUBE SHOP</title>
+  <!-- 立方体のマーク（店名の CUBE に合わせたアイソメトリック） -->
+  <g>
+    <polygon points="20,6 35,14 20,22 5,14" fill="#FFD814"/>
+    <polygon points="5,14 20,22 20,36 5,28" fill="#FFA41C"/>
+    <polygon points="35,14 20,22 20,36 35,28" fill="#E08A0B"/>
+  </g>
+  <!-- ワードマーク -->
+  <text x="46" y="29"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="22" font-weight="700" letter-spacing="0.5">
+    <tspan fill="#FFFFFF">EC-CUBE</tspan><tspan fill="#FFA41C" dx="6">SHOP</tspan>
+  </text>
+</svg>

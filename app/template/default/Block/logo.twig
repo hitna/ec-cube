@@ -1,0 +1,20 @@
+{#
+    ロゴ（app/template/default で上書き）
+
+    本体は店名のテキストをそのまま出していたため、作成したロゴ画像に差し替えている。
+    画像は html/template/default/assets/img/common/logo.svg（SVG なので拡大しても劣化しない）。
+    alt には BaseInfo の店名を入れているので、画像が読めない環境でも店名が読める。
+#}
+<div class="ec-headerRole">
+    <div class="ec-headerRole__title">
+        <div class="ec-headerTitle">
+            <div class="ec-headerTitle__title">
+                <h1>
+                    <a href="{{ url('homepage') }}">
+                        <img class="ec-headerTitle__logo" src="{{ asset('assets/img/common/logo.svg') }}" alt="{{ BaseInfo.shop_name }}">
+                    </a>
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>

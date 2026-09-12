@@ -1,0 +1,30 @@
+{#
+    カテゴリ特集タイル（app/template/default で上書き）
+
+    本体のテンプレートは灰色のプレースホルダ画像が3枚直書きされているだけだった。
+    大手ECのトップでよく見る「カテゴリ名＋商品画像4分割＋もっと見る」の
+    タイル型に差し替えている。
+    データの取得は Customize\Twig\Extension\FrontBlockExtension の category_tiles().
+#}
+{% set Tiles = category_tiles(4) %}
+{% if Tiles|length > 0 %}
+    <div class="ec-categoryRole">
+        <ul class="ec-categoryRole__tiles">
+            {% for tile in Tiles %}
+                <li class="ec-categoryRole__tile">
+                    <p class="ec-categoryRole__tileTitle">{{ tile.category.name }}</p>
+                    <div class="ec-categoryRole__tileImages">
+                        {% for image in tile.images|slice(0, 4) %}
+                            <a class="ec-categoryRole__tileImage" href="{{ url('product_list') }}?category_id={{ tile.category.id }}">
+                                <img src="{{ asset(image|no_image_product, 'save_image') }}" alt="{{ tile.category.name }}" loading="lazy">
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <a class="ec-categoryRole__tileMore" href="{{ url('product_list') }}?category_id={{ tile.category.id }}">
+                        {{ tile.category.name }}をすべて見る（{{ tile.count }}件）
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

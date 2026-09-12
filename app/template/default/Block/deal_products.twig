@@ -1,0 +1,34 @@
+{#
+    お買い得品（Customize で追加したブロック）
+
+    割引率を設定している商品を、割引率の大きい順に横並びで表示する。
+    データの取得は Customize\Twig\Extension\FrontBlockExtension の deal_products().
+#}
+{% set DealProducts = deal_products(12) %}
+{% if DealProducts|length > 0 %}
+    <div class="ec-role">
+        <div class="ec-dealRole">
+            <div class="ec-secHeading">
+                <span class="ec-secHeading__en">TODAY'S DEALS</span>
+                <span class="ec-secHeading__ja">お買い得品</span>
+                <a class="ec-inlineBtn--top ec-dealRole__more" href="{{ url('product_list') }}">すべて見る</a>
+            </div>
+            <ul class="ec-dealRole__track">
+                {% for Product in DealProducts %}
+                    {% set rate = product_discount_rate(Product) %}
+                    <li class="ec-dealRole__item">
+                        <a href="{{ url('product_detail', {'id': Product.id}) }}">
+                            <p class="ec-dealRole__itemImage">
+                                <img src="{{ asset(Product.mainFileName|no_image_product, 'save_image') }}" alt="{{ Product.name }}" loading="lazy">
+                            </p>
+                            <p class="ec-dealRole__itemBadge">{{ rate }}% OFF</p>
+                            <p class="ec-dealRole__itemPrice">{{ product_discount_price_min(Product)|price }}</p>
+                            <p class="ec-dealRole__itemStandard">{{ Product.getPrice02IncTaxMin|price }}</p>
+                            <p class="ec-dealRole__itemTitle">{{ Product.name }}</p>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

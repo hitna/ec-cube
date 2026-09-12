@@ -1,0 +1,47 @@
+{#
+    新着商品（app/template/default で上書き）
+
+    本体のテンプレートは商品名・価格・画像がすべて直書きで、登録済みの商品と
+    連動していなかったため、実データから取得するように差し替えている。
+    データの取得は Customize\Twig\Extension\FrontBlockExtension の new_products().
+#}
+{% set NewProducts = new_products(6) %}
+{% if NewProducts|length > 0 %}
+    <div class="ec-role">
+        <div class="ec-newItemRole">
+            <div class="ec-secHeading">
+                <span class="ec-secHeading__en">NEW ITEM</span>
+                <span class="ec-secHeading__ja">新着商品</span>
+                <a class="ec-inlineBtn--top ec-newItemRole__more" href="{{ url('product_list') }}">すべて見る</a>
+            </div>
+            <ul class="ec-newItemRole__grid">
+                {% for Product in NewProducts %}
+                    {% set rate = product_discount_rate(Product) %}
+                    <li class="ec-newItemRole__gridItem">
+                        <a href="{{ url('product_detail', {'id': Product.id}) }}">
+                            <p class="ec-newItemRole__gridItemImage">
+                                <img src="{{ asset(Product.mainFileName|no_image_product, 'save_image') }}" alt="{{ Product.name }}" loading="lazy">
+                            </p>
+                            <p class="ec-newItemRole__gridItemTitle">{{ Product.name }}</p>
+                            {% if rate %}
+                                <p class="ec-newItemRole__gridItemStandard">{{ Product.getPrice02IncTaxMin|price }}</p>
+                                <p class="ec-newItemRole__gridItemPrice is-discount">
+                                    {{ product_discount_price_min(Product)|price }}
+                                    <span class="ec-newItemRole__gridItemBadge">{{ rate }}% OFF</span>
+                                </p>
+                            {% else %}
+                                <p class="ec-newItemRole__gridItemPrice">
+                                    {%- if Product.getPrice02IncTaxMin != Product.getPrice02IncTaxMax -%}
+                                        {{ Product.getPrice02IncTaxMin|price }} ～ {{ Product.getPrice02IncTaxMax|price }}
+                                    {%- else -%}
+                                        {{ Product.getPrice02IncTaxMin|price }}
+                                    {%- endif -%}
+                                </p>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

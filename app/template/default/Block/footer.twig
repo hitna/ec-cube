@@ -1,0 +1,40 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{#
+    app/template/default で上書き。
+    本体との違いは、店名テキストをロゴ画像に差し替えている1箇所のみ。
+#}
+<div class="ec-footerRole">
+    <div class="ec-footerRole__inner">
+        <ul class="ec-footerNavi">
+            <li class="ec-footerNavi__link">
+                <a href="{{ url('help_about') }}">{{ 'front.block.footer.about_us'|trans }}</a>
+            </li>
+            <li class="ec-footerNavi__link">
+                <a href="{{ url('help_privacy') }}">{{ 'front.block.footer.privacy_policy'|trans }}</a>
+            </li>
+            <li class="ec-footerNavi__link">
+                <a href="{{ url('help_tradelaw') }}">{{ 'front.block.footer.act_on_specified_commercial_transactions'|trans }}</a>
+            </li>
+            <li class="ec-footerNavi__link">
+                <a href="{{ url('contact') }}">{{ 'front.block.footer.inquiry'|trans }}</a>
+            </li>
+        </ul>
+        <div class="ec-footerTitle">
+            <div class="ec-footerTitle__logo">
+                <a href="{{ url('homepage') }}">
+                    <img class="ec-footerTitle__logoImage" src="{{ asset('assets/img/common/logo.svg') }}" alt="{{ BaseInfo.shop_name }}">
+                </a>
+            </div>
+            <div class="ec-footerTitle__copyright">copyright (c) {{ BaseInfo.shop_name }} all rights reserved.</div>
+        </div>
+    </div>
+</div>
