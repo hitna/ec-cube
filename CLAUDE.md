@@ -197,3 +197,5 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+@CLAUDE.local.md

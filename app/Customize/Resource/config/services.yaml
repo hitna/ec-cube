@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: false
+        public: false
+
+    # 商品割引に対応するため, コアの販売価格変更検知バリデータを差し替える.
+    # コア版(Eccube\Service\PurchaseFlow\Processor\PriceChangeValidator)は
+    # 明細の単価を必ず ProductClass の販売価格へ戻すため, 割引価格をカートに保持できない.
+    # サービスIDごと上書きするので, タグは purchaseflow.yaml と同じものを再定義する.
+    eccube.purchase.flow.item.validator.price.change.validator:
+        class: Customize\Service\PurchaseFlow\Processor\DiscountedPriceChangeValidator
+        arguments:
+            $productDiscountService: '@Customize\Service\ProductDiscountService'
+        tags:
+            - { name: eccube.item.validator, flow_type: cart, priority: 800 }
+            - { name: eccube.item.validator, flow_type: shopping, priority: 800 }

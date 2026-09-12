@@ -1,0 +1,23 @@
+{#
+    商品ごとの割引率入力欄.
+    Customize\EventListener\AdminProductDiscountSubscriber から
+    @admin/Product/product.twig の検索ワード欄の直後に差し込まれる.
+#}
+<div class="row">
+    <div class="col-3">
+        <div class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top"
+             title="販売価格に対する割引率です。0 または未入力の場合は割引なしとして扱われます。">
+            <span>割引率(%)</span>
+            <i class="fa fa-question-circle fa-lg ms-1"></i>
+        </div>
+    </div>
+    <div class="col mb-2">
+        <div>
+            {{ form_widget(form.discount_rate) }}
+            {{ form_errors(form.discount_rate) }}
+            <small class="form-text text-muted">
+                0〜100 で入力してください。設定するとフロントに標準価格と割引価格が並べて表示され、カートにも割引価格が適用されます。
+            </small>
+        </div>
+    </div>
+</div>
