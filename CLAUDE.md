@@ -93,7 +93,8 @@ bin/phpunit --filter testCompleteWithLogin
 ### Static Analysis
 
 ```bash
-vendor/bin/phpstan analyse src --level=1
+vendor/bin/phpstan analyse            # paths are configured in phpstan.neon.dist
+vendor/bin/phpstan analyse app/Customize --level=1   # narrow the scope while iterating
 ```
 
 ### Code Style
@@ -136,15 +137,32 @@ bin/console doctrine:migrations:migrate         # Run migrations
 
 ### PurchaseFlow (Order Processing Pipeline)
 
-PurchaseFlow is the core order processing engine located in `src/Eccube/Service/PurchaseFlow/`. It processes orders through a pipeline of:
+PurchaseFlow is the core order processing engine located in `src/Eccube/Service/PurchaseFlow/`.
 
-1. **ItemPreprocessor / ItemHolderPreprocessor**: Prepare items (calculate delivery fees, payment charges)
-2. **ItemValidator / ItemHolderValidator**: Validate items (check stock, sale limits, payment totals)
-3. **ItemHolderPostValidator**: Final validation after all processing
-4. **PurchaseProcessor**: Execute purchase (reduce stock, award points, generate order numbers)
-5. **DiscountProcessor**: Apply discounts
+`PurchaseFlow::validate()` runs the following stages **in this order**. Note that
+validators run *before* preprocessors — this is the opposite of what the naming suggests,
+and it is the single most common source of wrong assumptions when extending the flow:
 
-Configuration is in `app/config/eccube/packages/purchaseflow.yaml`.
+1. **ItemValidator**: Validate each item (price change detection, stock, sale limits)
+2. **ItemHolderValidator**: Validate the whole cart/order
+3. **ItemPreprocessor**: Adjust each item
+4. **ItemHolderPreprocessor**: Adjust the whole cart/order (delivery fees, payment charges, tax)
+5. **DiscountProcessor**: Remove, then re-add discount line items
+6. **ItemHolderPostValidator**: Final validation after all processing
+
+`PurchaseFlow::prepare()` / `commit()` / `rollback()` then run the **PurchaseProcessor**
+stage separately (reduce stock, award points, generate order numbers).
+
+A practical consequence: an `ItemPreprocessor` cannot be used to change a unit price,
+because `PriceChangeValidator` has already reset it to the `ProductClass` price
+(`getPrice02IncTax()` for `CartItem`, `getPrice02()` for `OrderItem`) and reported a
+price-change warning. To change unit prices you must replace or decorate that validator —
+its service id is `eccube.purchase.flow.item.validator.price.change.validator`.
+
+Configuration is in `app/config/eccube/packages/purchaseflow.yaml`. Each processor is wired
+by a tag (`eccube.item.validator`, `eccube.item.preprocessor`, ...) carrying `flow_type`
+(`cart` / `shopping` / `order`) and `priority`. Redefining a service id replaces its tags
+too, so re-declare them when overriding.
 
 ### Event System
 
@@ -171,15 +189,93 @@ All project-specific code should go in `app/Customize/` to survive core upgrades
 - **Template overrides**: Place templates in `app/template/` to override core templates
 - **Service overrides**: Use Symfony service decoration or compiler passes
 
+### Front-end Templates and Blocks
+
+**Which sections appear on a page is stored in the database, not in templates.** The page
+template only renders `{% block main %}`; everything around it comes from rows in
+`dtb_layout`, `dtb_block` and `dtb_block_position`. The `section` column maps to the
+`Layout::TARGET_ID_*` constants (`3` = header, `7` = main bottom, `10` = footer, `11` =
+drawer). Reading `index.twig` alone will not tell you what the top page shows — query those
+tables, or look at **Admin > コンテンツ管理 > レイアウト管理**.
+
+To add a section you must both create `Block/<file_name>.twig` and insert a `dtb_block` row
+plus a `dtb_block_position` row; adding only the template does nothing.
+
+**Several core block templates are hardcoded demo content, not dynamic.** They look like they
+read from the database but do not:
+
+- `Block/new_item.twig` — product names, prices and images are literals. The names and prices
+  live in `src/Eccube/Resource/locale/messages.*.yaml` as translation keys
+  (`front.block.new_item.item_1_name` is `彩のジェラート"CUBE"`), and the images are
+  hardcoded filenames such as `cube-1.png`.
+- `Block/category.twig` — three placeholder images (`fpo_355x150.png`) with hardcoded
+  category ids.
+
+If you need these to reflect real data, override the template in `app/template/<theme>/Block/`
+and supply the data from a Twig extension.
+
+### Front-end Styling
+
+Custom CSS belongs in `html/user_data/assets/css/customize.css`. `default_frame.twig` already
+loads it **after** `assets/css/style.css`, so no template change is needed.
+
+**Match the core's selector depth or your rules are silently ignored.** `style.css` uses the
+`.ec-block .ec-block__element` pattern (two classes, specificity 0-2-0) in roughly 540 places.
+A single-class override such as `.ec-headerSearch__keywordBtn { ... }` is 0-1-0 and loses —
+with no error, no warning, and nothing in the console. Write overrides as:
+
+```css
+/* scope + block + element: 0-3-0, wins against the core's 0-2-0 */
+.ec-layoutRole .ec-headerSearch .ec-headerSearch__keywordBtn { ... }
+```
+
+`.ec-layoutRole` wraps the header, contents and footer, so it works as a general scope.
+
+Other things worth knowing before overriding front-end styles:
+
+- `style.css` is generated (20,000+ lines) and defines ~870 selectors more than once, so the
+  winning declaration is often not the first one you find. Search for every occurrence.
+- Some core rules only show up visually, never in markup, and the properties that cause them
+  are often split across rules. For example `.ec-select` sets `overflow: hidden` while
+  `.ec-select.ec-select_search` sets a 50px left `border-radius` in a media query; together
+  they clip a child element's background into a pill shape. Reset the properties you did not
+  expect, not just the ones you are setting.
+- A few class names contain typos that you must reproduce exactly, such as
+  `.ec-cartRow__sutbtotal` (not `subtotal`).
+- `html/template/<theme>/assets/css/*.css` is build output from `assets/scss/`. Never edit it
+  directly; run `npm run build`.
+
 ### Entity Proxy System
 
 EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or customizations add traits to entities, the proxy generator creates extended entity classes. Run `bin/console eccube:generate:proxies` to regenerate.
+
+**The file under `src/Eccube/Entity/` is not the class that runs.** Each entity file wraps its
+body in `if (!class_exists(Product::class)) { ... }`. Once proxies are generated, the copy in
+`app/proxy/entity/src/Eccube/Entity/` is autoloaded first and the original is skipped. The
+generated copy is what actually pulls in the `@EntityExtension` traits:
+
+```php
+// app/proxy/entity/src/Eccube/Entity/Product.php
+class Product extends AbstractEntity
+{
+    use \Customize\Entity\ProductDiscountTrait;   // added by the generator
+```
+
+Two consequences when writing code against extended entities:
+
+- Reading `src/Eccube/Entity/Product.php` will **not** show fields added by customizations or
+  plugins. Check `app/proxy/entity/` instead, or the trait itself.
+- Static analysis and IDEs do not see those fields either. Guard optional accessors with
+  `method_exists($Product, 'getDiscountRate')` when the trait may be absent.
+
+After adding or changing an `@EntityExtension` trait, regenerate proxies and clear the cache
+before anything else, or you will debug a stale class.
 
 ## Coding Conventions
 
 - Follow PSR-12 coding style (enforced by PHP-CS-Fixer)
 - Use PHP type declarations for parameters and return types
-- Entity classes use Doctrine XML mapping (`src/Eccube/Resource/doctrine/`)
+- Entity classes use Doctrine **annotations** (`@ORM\...` in `src/Eccube/Entity/`). There is no XML mapping; `src/Eccube/Resource/doctrine/` only holds CSV import definitions and migration helpers
 - Controllers extend `Eccube\Controller\AbstractController`
 - Form types extend `Symfony\Component\Form\AbstractType`
 - Repositories extend `Eccube\Repository\AbstractRepository`

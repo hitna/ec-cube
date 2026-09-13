@@ -60,7 +60,10 @@ abstract class EccubeTestCase extends WebTestCase
     protected $eccubeConfig;
 
     /**
-     * Client を生成しトランザクションを開始する.
+     * Client と EntityManager を生成する.
+     *
+     * トランザクションの開始やロールバックは行わない。テストが書き込んだデータは
+     * そのままデータベースに残るため、テスト専用のデータベースを使うこと。
      */
     protected function setUp(): void
     {
@@ -71,7 +74,9 @@ abstract class EccubeTestCase extends WebTestCase
     }
 
     /**
-     * トランザクションをロールバックする.
+     * プロパティを破棄してメモリリークを防ぐ.
+     *
+     * データベースへの変更は取り消されない。 @see setUp()
      */
     protected function tearDown(): void
     {
