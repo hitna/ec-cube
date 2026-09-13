@@ -1,43 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 44" width="236" height="44" role="img" aria-label="EC-CUBE SHOP">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 44" width="240" height="44" role="img" aria-label="EC-CUBE SHOP">
   <title>EC-CUBE SHOP</title>
   <defs>
-    <!-- ブラウン管のような走査線 -->
-    <pattern id="b-scan" width="4" height="3" patternUnits="userSpaceOnUse">
-      <rect width="4" height="1.1" fill="#000000" opacity=".5"/>
-    </pattern>
-    <!-- 横一列だけ信号が飛んだように見せるための帯 -->
-    <clipPath id="b-slice"><rect x="0" y="14.5" width="236" height="4.5"/></clipPath>
-    <clipPath id="b-slice2"><rect x="0" y="25" width="236" height="3"/></clipPath>
+    <linearGradient id="f-face" x1="15" y1="10" x2="39" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8AE9FF"/>
+      <stop offset="1" stop-color="#2B7FE0"/>
+    </linearGradient>
+    <linearGradient id="f-face2" x1="15" y1="17" x2="39" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E88C7" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#123A66" stop-opacity=".55"/>
+    </linearGradient>
   </defs>
 
-  <g id="b-art">
-    <!-- 立方体: R/B にずらした複製を重ねて色収差をつくる -->
-    <g fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-      <g stroke="#FF2E97" transform="translate(-1.8 0)" opacity=".9">
-        <polygon points="26,5 42,14 42,30 26,39 10,30 10,14"/>
-        <path d="M10 14 L26 23 L42 14 M26 23 L26 39"/>
-      </g>
-      <g stroke="#00F0FF" transform="translate(1.8 0)" opacity=".9">
-        <polygon points="26,5 42,14 42,30 26,39 10,30 10,14"/>
-        <path d="M10 14 L26 23 L42 14 M26 23 L26 39"/>
-      </g>
-      <g stroke="#FFFFFF" stroke-width="1.5">
-        <polygon points="26,5 42,14 42,30 26,39 10,30 10,14"/>
-        <path d="M10 14 L26 23 L42 14 M26 23 L26 39"/>
-      </g>
-    </g>
-
-    <!-- ワードマーク: 同じく3層 -->
-    <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
-       font-size="21" font-weight="800" letter-spacing="1.4">
-      <text x="54" y="28" fill="#FF2E97" opacity=".9" transform="translate(-1.8 0)">EC-CUBE<tspan dx="9" font-size="15" font-weight="700" letter-spacing="3.8">SHOP</tspan></text>
-      <text x="54" y="28" fill="#00F0FF" opacity=".9" transform="translate(1.8 0)">EC-CUBE<tspan dx="9" font-size="15" font-weight="700" letter-spacing="3.8">SHOP</tspan></text>
-      <text x="54" y="28" fill="#FFFFFF">EC-CUBE<tspan dx="9" font-size="15" font-weight="700" letter-spacing="3.8">SHOP</tspan></text>
-      <!-- 信号が飛んだ帯 -->
-      <g clip-path="url(#b-slice)"><text x="54" y="28" fill="#00F0FF" transform="translate(6 0)">EC-CUBE<tspan dx="9" font-size="15" font-weight="700" letter-spacing="3.8">SHOP</tspan></text></g>
-      <g clip-path="url(#b-slice2)"><text x="54" y="28" fill="#FF2E97" transform="translate(-5 0)">EC-CUBE<tspan dx="9" font-size="15" font-weight="700" letter-spacing="3.8">SHOP</tspan></text></g>
+  <!-- 照準を思わせる HUD フレーム -->
+  <g stroke="#22D3EE" fill="none">
+    <polygon points="27,3 43.4,12.5 43.4,31.5 27,41 10.6,31.5 10.6,12.5"
+             stroke-width=".9" stroke-dasharray="7 4.5" opacity=".55"/>
+    <g stroke-width="1.2" stroke-linecap="square" opacity=".85">
+      <path d="M4 10 V4 H10"/>
+      <path d="M50 10 V4 H44"/>
+      <path d="M4 34 V40 H10"/>
+      <path d="M50 34 V40 H44"/>
     </g>
   </g>
 
-  <rect x="0" y="0" width="236" height="44" fill="url(#b-scan)"/>
+  <!-- 中央の立方体 -->
+  <g>
+    <polygon points="27,10 39,17 27,24 15,17" fill="url(#f-face)"/>
+    <polygon points="15,17 27,24 27,34 15,27" fill="url(#f-face2)"/>
+    <polygon points="39,17 27,24 27,34 39,27" fill="#0E2A4A" fill-opacity=".65"/>
+    <g fill="none" stroke="#BDF0FF" stroke-width=".85" stroke-linejoin="round">
+      <polygon points="27,10 39,17 39,27 27,34 15,27 15,17"/>
+      <path d="M15 17 L27 24 L39 17 M27 24 L27 34"/>
+    </g>
+  </g>
+
+  <!-- ワードマーク -->
+  <text x="62" y="27"
+        font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="20" font-weight="700" letter-spacing="1.4" fill="#EAF6FF">EC-CUBE</text>
+
+  <!-- 計器のラベルのように囲った SHOP -->
+  <rect x="170" y="12.5" width="56" height="16" rx="2" fill="none" stroke="#22D3EE" stroke-width=".9" opacity=".8"/>
+  <text x="177.5" y="24.5"
+        font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="11" font-weight="700" letter-spacing="3.2" fill="#22D3EE">SHOP</text>
+
+  <!-- 目盛り -->
+  <path d="M62 34.5 H226" stroke="#22D3EE" stroke-width="2.6" stroke-dasharray="1 7" opacity=".45" stroke-linecap="butt"/>
 </svg>
