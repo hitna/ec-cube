@@ -377,25 +377,27 @@ file that was distributed with this source code.
                             <li class="ec-productRole__tag tag_{{ Tag.id }}">{{ Tag }}</li>
                         {% endfor %}
                     </ul>
-                    {# 通常価格 #}
-                    {% if Product.hasProductClass -%}
-                        <div class="ec-productRole__priceRegular">
-                            {% if Product.getPrice01Min is not null and Product.getPrice01IncTaxMin == Product.getPrice01IncTaxMax %}
-                                <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：<span class="price01-default">{{ Product.getPrice01IncTaxMin|price }}</span></span>
-                                <span class="ec-productRole__priceRegularTax">{{ 'common.tax_include'|trans }}</span>
-                            {% elseif Product.getPrice01Min is not null and Product.getPrice01Max is not null %}
-                                <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：<span class="price01-default">{{ Product.getPrice01IncTaxMin|price }}～ {{ Product.getPrice01IncTaxMax|price }}</span></span>
+                    {% set discount_rate = product_discount_rate(Product) %}
+                    {# 通常価格. 割引適用中は「標準価格(取消線)」と役割が重複するため出さない #}
+                    {% if not discount_rate %}
+                        {% if Product.hasProductClass -%}
+                            <div class="ec-productRole__priceRegular">
+                                {% if Product.getPrice01Min is not null and Product.getPrice01IncTaxMin == Product.getPrice01IncTaxMax %}
+                                    <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：<span class="price01-default">{{ Product.getPrice01IncTaxMin|price }}</span></span>
+                                    <span class="ec-productRole__priceRegularTax">{{ 'common.tax_include'|trans }}</span>
+                                {% elseif Product.getPrice01Min is not null and Product.getPrice01Max is not null %}
+                                    <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：<span class="price01-default">{{ Product.getPrice01IncTaxMin|price }}～ {{ Product.getPrice01IncTaxMax|price }}</span></span>
+                                    <span class="ec-productRole__priceRegularTax">{{ 'common.tax_include'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            {% if Product.getPrice01Max is not null %}
+                                <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：{{ Product.getPrice01IncTaxMin|price }}</span>
                                 <span class="ec-productRole__priceRegularTax">{{ 'common.tax_include'|trans }}</span>
                             {% endif %}
-                        </div>
-                    {% else %}
-                        {% if Product.getPrice01Max is not null %}
-                            <span class="ec-productRole__priceRegularPrice">{{ 'front.product.normal_price'|trans }}：{{ Product.getPrice01IncTaxMin|price }}</span>
-                            <span class="ec-productRole__priceRegularTax">{{ 'common.tax_include'|trans }}</span>
                         {% endif %}
                     {% endif %}
                     {# 販売価格 #}
-                    {% set discount_rate = product_discount_rate(Product) %}
                     <div class="ec-productRole__price">
                         {% if discount_rate %}
                             {# 標準価格(割引前). 規格切替時は eccube.js がこの要素を更新する #}
