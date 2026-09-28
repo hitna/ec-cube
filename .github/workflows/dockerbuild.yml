@@ -49,7 +49,7 @@ jobs:
       #   uses: docker/setup-buildx-action@v2
 
       - name: Setup PHP
-        uses: nanasess/setup-php@bc11abbf4dd060b7bfd20d03edeeb43417ebe245  # master
+        uses: nanasess/setup-php@6e78a56349ee2b751525bdbc0905e07293007bb4  # master
         with:
           php-version: ${{ matrix.php }}
 
